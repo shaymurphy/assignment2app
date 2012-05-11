@@ -5,7 +5,7 @@ var common = require('./common')
 var uuid = common.uuid
 var mongodb = common.mongodb
 
-var todocoll = null
+var itemcoll = null
 
 var util = {}
 
@@ -51,16 +51,16 @@ exports.rest = {
 			return res.send$(400, 'invalid')
 		}
 
-		var todo = {
+		var item = {
 			text : input.text,
-			done : input.done,
 			rating : input.rating,
 			category : input.category,
+			description : input.description,
 			mylocation : input.mylocation,
 			created : new Date().getTime(),
 		}
 
-		todocoll.insert(todo, res.err$( function(docs) {
+		itemcoll.insert(item, res.err$( function(docs) {
 			var output = util.fixid(docs[0])
 			res.sendjson$(output)
 		}))
@@ -73,7 +73,7 @@ exports.rest = {
 		var query = util.fixid({
 			id : input.id
 		})
-		todocoll.findOne(query, res.err$(function(doc) {
+		itemcoll.findOne(query, res.err$(function(doc) {
 			if(doc) {
 				var output = util.fixid(doc)
 				res.sendjson$(output)
@@ -91,7 +91,7 @@ exports.rest = {
 			sort : [['created', 'desc']]
 		}
 
-		todocoll.find(query, options, res.err$(function(cursor) {
+		itemcoll.find(query, options, res.err$(function(cursor) {
 			cursor.toArray(res.err$(function(docs) {
 				output = docs
 				output.forEach(function(item) {
@@ -110,7 +110,7 @@ exports.rest = {
 		}
 		var options = {}
 
-		todocoll.find(query, res.err$(function(cursor) {
+		itemcoll.find(query, res.err$(function(cursor) {
 			cursor.toArray(res.err$(function(docs) {
 				output = docs
 				output.forEach(function(item) {
@@ -131,12 +131,9 @@ exports.rest = {
 		var query = util.fixid({
 			id : id
 		})
-		todocoll.update(query, {
+		itemcoll.update(query, {
 			$set : {
 				text : input.text
-			},
-			$set : {
-				done : input.done
 			}
 		}, res.err$(function(count) {
 			if(0 < count) {
@@ -154,7 +151,7 @@ exports.rest = {
 		var query = util.fixid({
 			id : input.id
 		})
-		todocoll.remove(query, res.err$(function() {
+		itemcoll.remove(query, res.err$(function() {
 			var output = {}
 			res.sendjson$(output)
 		}))
@@ -167,10 +164,11 @@ exports.connect = function(options, callback) {
 		if(err)
 			return callback(err);
 
-		client.collection('todo', function(err, collection) {
+		client.collection('item', function(err, collection) {
 			if(err)
 				return callback(err);
-			todocoll = collection
+			itemcoll = collection
+			itemcoll.ensureIndex( { mylocation : "2d" } )
 			callback()
 		})
 	})

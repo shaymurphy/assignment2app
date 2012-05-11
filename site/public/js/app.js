@@ -1,7 +1,5 @@
 
 
-
-
 var i = 0
 
 var app = {
@@ -10,22 +8,23 @@ var app = {
     tabs: {
         recent: {
             index: i++,
-            icon: '73-radar'
+			icon: '40-inbox'
         },
         top: {
             index: i++,
-            icon: '86-camera'
+            icon: '28-star'
         },
         nearby: {
             index: i++,
-            icon: '33-cabinet'
+			icon: '73-radar'
         }
     },
     platform: /Android/.test(navigator.userAgent) ? 'android' : 'ios',
     initialtab: 'recent'
 }
 
-console.log(app)
+
+
 
 _.templateSettings = {
     interpolate: /\{\{(.+?)\}\}/g,
@@ -33,7 +32,9 @@ _.templateSettings = {
     evaluate: /\{\{=(.+?)\}\}/g
 };
 
-
+/*
+ * function to create images for rating
+ */
 $.fn.stars = function(){
     return $(this).each(function(){
         var val = parseFloat($(this).html())
@@ -75,9 +76,11 @@ bb.init = function(){
         }
     })
     
+    /*
+     * Define the model for the item
+     */
     bb.model.Item = Backbone.Model.extend(_.extend({
         defaults: {
-            done: false,
             text: '',
             mylocation: '',
             description: '',
@@ -88,23 +91,15 @@ bb.init = function(){
         initialize: function(){
             var self = this
             _.bindAll(self)
-        },
-        marktoggle: function(){
-            var self = this
-            self.save({
-                done: !self.get("done")
-            });
-        },
-        removeitem: function(){
-            var self = this
-            self.destroy()
         }
     }))
     
+    /*
+     * define a list of items and link to restful api
+     */
     bb.model.Items = Backbone.Collection.extend(_.extend({
         model: bb.model.Item,
-        localStorage: new Store("items"),
-        //	url : '/api/rest/todo',
+        url: '/api/rest/item',
         
         initialize: function(){
             var self = this
@@ -115,15 +110,15 @@ bb.init = function(){
                 self.count = self.length
             })
         },
-        additem: function(itemText, rating, category, description){
+        //TODO: need to pass as an object rather than list of params
+        additem: function(itemText, rating, category, description, mylocation){
             var self = this
             var item = new bb.model.Item({
                 text: itemText,
-                done: false,
                 rating: rating,
                 category: category,
                 description: description,
-                mylocation: app.userlocation
+                mylocation: mylocation
             })
             self.add(item)
             self.count++
@@ -139,8 +134,28 @@ bb.init = function(){
         }
     }))
     
+    /*
+     * Utilize mongo geospatial indexing to return list of items by distance
+     * pass x,y corrdinates as url params in the restful api call
+     */
+    bb.model.NearbyItems = Backbone.Collection.extend(_.extend({
+        model: bb.model.Item,
+        url: '/api/rest/geolist?x=' + 50 + '&y=' + 50,
+        
+        initialize: function(){
+            var self = this
+            _.bindAll(self)
+            self.count = 0
+            
+            self.on('reset', function(){
+                self.count = self.length
+            })
+        }
+    }))
     
-    
+    /*
+     * List view associated to Recent list
+     */
     bb.view.List = Backbone.View.extend(_.extend({
         initialize: function(items){
             var self = this
@@ -161,7 +176,7 @@ bb.init = function(){
                 
             })
             //render the stars
-			$('#recentlist span.stars').stars();
+            $('#recentlist span.stars').stars();
             
         },
         appenditem: function(item){
@@ -170,15 +185,15 @@ bb.init = function(){
             var itemview = new bb.view.Item({
                 model: item
             })
-            //itemview.stars();
+            
             self.$el.append(itemview.render().el)
-            //render the stars
-            //  $('span.stars').stars();
             self.scroll()
         }
     }, scrollContent))
     
-    
+    /*
+     * List view associated to Top rated list
+     */
     bb.view.TopList = Backbone.View.extend(_.extend({
         initialize: function(items){
             var self = this
@@ -199,7 +214,7 @@ bb.init = function(){
                 var sortedItems = self.items.sortBy(function(item){
                     return -item.get("rating");
                 });
-                $.each(sortedItems, (function(i,el){
+                $.each(sortedItems, (function(i, el){
                     self.appenditem(el)
                     
                 }))
@@ -215,18 +230,58 @@ bb.init = function(){
             var itemview = new bb.view.Item({
                 model: item
             })
-            //itemview.stars();
+            
             self.$el.append(itemview.render().el)
-            //render the stars
-            //  $('span.stars').stars();
+            
             self.scroll()
         }
         
     }, scrollContent))
     
+    /*
+     * List view associated to Nearby list
+     */
+    bb.view.NearbyList = Backbone.View.extend(_.extend({
+        initialize: function(items){
+            var self = this
+            _.bindAll(self)
+            
+            self.setElement('#nearbylist')
+            
+            self.items = items
+            self.items.on('add', self.appenditem)
+        },
+        
+        render: function(){
+            var self = this
+            
+            self.$el.empty()
+            self.items.each(function(item){
+                self.appenditem(item)
+                
+            })
+            
+            //render the stars
+            $('#nearbylist span.stars').stars();
+            
+        },
+        appenditem: function(item){
+            var self = this
+            
+            var itemview = new bb.view.Item({
+                model: item
+            })
+            
+            self.$el.append(itemview.render().el)
+            
+            self.scroll()
+        }
+        
+    }, scrollContent))
     
-    
-    
+    /*
+     * render each item in the list when added to appended new list
+     */
     bb.view.Item = Backbone.View.extend(_.extend({
         tagName: "li",
         template: {
@@ -272,7 +327,9 @@ bb.init = function(){
         }
     }))
     
-    
+    /*
+     * create an itemdetail when each item is clicked
+     */
     bb.view.ItemDetail = Backbone.View.extend(_.extend({
     
         model: bb.model.Item,
@@ -301,8 +358,7 @@ bb.init = function(){
             
             self.$el.append(html)
             //render the stars
-			$('#content_detail span.stars').stars();
-          //  $('span.stars').stars();
+            $('#content_detail span.stars').stars();
             
             return self
         },
@@ -331,21 +387,28 @@ bb.init = function(){
                 zIndex: 1000
             })
             
+            /*
+             * Function called when add is clicked
+             */
             function handleadd(){
                 $(".content").hide().removeClass('leftin').removeClass('rightin');
-                //$("#content_" + app.model.state.get('current')).hide().removeClass('leftin').removeClass('rightin')
                 $("#content_add").show().addClass('rightin')
                 $("#back").toggleClass('hidden');
                 $("#save").toggleClass('hidden');
                 $("#add").toggleClass('hidden');
+                $('#formadd').each (function(){ this.reset();});
             }
             
+            /*
+             * Function called when save is clicked
+             */
             function handlesave(){
+                //fetchGeo();
                 itemname = $("#itemname").val()
                 itemrating = $("#select-rating").val()
                 itemcategory = $("#select-category").val()
                 itemdescription = $("#itemdescription").val()
-                app.model.items.additem(itemname, itemrating, itemcategory, itemdescription)
+                app.model.items.additem(itemname, itemrating, itemcategory, itemdescription, app.mylocation)
                 $("#content_add").hide().removeClass('leftin').removeClass('rightin')
                 $("#content_" + app.model.state.get('current')).show().addClass('rightin')
                 $("#back").toggleClass('hidden');
@@ -353,6 +416,9 @@ bb.init = function(){
                 $("#add").toggleClass('hidden');
             }
             
+            /*
+             * Function called when back is clicked
+             */
             function handleback(){
                 $(".content").hide().removeClass('leftin').removeClass('rightin').trigger('hideDetail');
                 $("#content_" + app.model.state.get('current')).show().addClass('rightin')
@@ -361,6 +427,9 @@ bb.init = function(){
                 $("#save").hide();
             }
             
+            /*
+             * Function called when tabbar item is clicked
+             */
             function handletab(tabname){
                 return function(){
                     app.model.state.set({
@@ -444,90 +513,6 @@ bb.init = function(){
     })
     
     
-    bb.view.Recent = Backbone.View.extend({
-        initialize: function(){
-            var self = this
-            _.bindAll(self)
-            
-            self.elem = {}
-            
-        },
-        
-        render: function(){
-        }
-        
-    })
-    
-    
-    bb.view.Top = Backbone.View.extend({
-        initialize: function(){
-            var self = this
-            _.bindAll(self)
-            
-            /*  self.elem = {
-             image_btn: $('#capture_image')
-             }
-             
-             self.elem.image_btn.tap(function(){
-             navigator.device.capture.captureImage(function(mediafiles){
-             self.elem.image_play.attr({
-             src: 'file://' + mediafiles[0].fullPath
-             })
-             app.model.state.trigger('scroll-refresh')
-             }, app.erroralert)
-             })
-             */
-        },
-        render: function(){
-        }
-    })
-    
-    bb.view.Status = Backbone.View.extend({
-        initialize: function(){
-            var self = this
-            _.bindAll(self)
-            
-            self.elem = {}
-        },
-        render: function(){
-        }
-    })
-    
-    bb.view.Nearby = Backbone.View.extend({
-        initialize: function(){
-            var self = this
-            _.bindAll(self)
-            
-            self.elem = {}
-        },
-        render: function(){
-        }
-    })
-    
-    bb.view.PhoneGap = Backbone.View.extend({
-        initialize: function(){
-            var self = this
-            _.bindAll(self)
-            
-            self.elem = {
-                name: $('#phonegap_name'),
-                phonegap: $('#phonegap_phonegap'),
-                platform: $('#phonegap_platform'),
-                uuid: $('#phonegap_uuid'),
-                version: $('#phonegap_version')
-            }
-        },
-        
-        render: function(){
-            var self = this
-            
-            self.elem.name.txt(device.name)
-            self.elem.phonegap.txt(device.phonegap)
-            self.elem.platform.txt(device.platform)
-            self.elem.uuid.txt(device.uuid)
-            self.elem.version.txt(device.version)
-        }
-    })
     
 }
 
@@ -579,23 +564,17 @@ app.init = function(){
     
     app.model.state = new bb.model.State()
     app.model.items = new bb.model.Items()
+    app.model.nearbyitems = new bb.model.NearbyItems()
     app.view.navigation = new bb.view.Navigation(app.initialtab)
     app.view.navigation.render()
     
     app.view.content = new bb.view.Content(app.initialtab)
     app.view.content.render()
     
-    app.view.recent = new bb.view.Recent()
-    app.view.top = new bb.view.Top()
-    //  app.view.status = new bb.view.Status()
-    app.view.nearby = new bb.view.Nearby()
-    //  app.view.phonegap = new bb.view.PhoneGap()
-    
     app.view.list = new bb.view.List(app.model.items)
-    app.view.list.render()
-    
     app.view.toplist = new bb.view.TopList(app.model.items)
-    app.view.toplist.render()
+    app.view.nearbylist = new bb.view.NearbyList(app.model.nearbyitems)
+    
     
     app.model.items.fetch({
         success: function(){
@@ -607,6 +586,8 @@ app.init = function(){
         }
     })
     
+    
+    
     app.start()
     
     console.log('end init')
@@ -617,35 +598,26 @@ app.boot()
 $(app.init)
 
 
-/* possible code to add */
-function fetchGeo(){
-    navigator.geolocation.getCurrentPosition(function(pos){
-        // Succesfully got location
-        var lat = pos.coords.latitude, lng = pos.coords.longitude;
-        // Do something with the position!
-        fetchLocations(lat, lng);
-    }, function(error){
-        // Failed to get location
-        var msg = "";
-        switch (error.code) {
-            case error.PERMISSION_DENIED:
-                msg = "Ooops. You have disallowed our app!";
-                break;
-            case error.POSITION_UNAVAILABLE:
-                msg = "Sorry, we couldn't get your location.";
-                break;
-            case error.TIMEOUT:
-                msg = "Sorry, fetch timeout expired.";
-                break;
+wpid = navigator.geolocation.watchPosition(geo_success, geo_error, {
+	enableHighAccuracy : true,
+	maximumAge : 30000,
+	timeout : 27000
+});
+
+function geo_success(position) {
+	app.latitude = position.coords.latitude
+	app.longitude = position.coords.longitude
+	app.mylocation = [app.latitude, app.longitude]
+	
+	app.model.nearbyitems.fetch({
+        success: function(){
+            app.view.nearbylist.render()
+        },
+        failure: function(){
+            debugger;
         }
-    }, {
-        // Options for geolocation
-        maximumAge: 10000,
-        timeout: 10000,
-        enableHighAccuracy: true
-    });
-}
-
-/* end of possible code to add */
-
-
+    })
+};
+function geo_error(position) {
+	debugger
+};

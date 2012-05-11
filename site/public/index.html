@@ -1,242 +1,182 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>PhoneGap</title>
-        <meta name="viewport" content="user-scalable=no,initial-scale=1.0,maximum-scale=1.0" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="apple-touch-icon-114x114-precomposed.png">
-        <link rel="apple-touch-icon-precomposed" href="apple-touch-icon-precomposed.png">
-        <link rel="apple-touch-startup-image" href="splash-320x460.png" />
-        <link rel="stylesheet" href="css/jquery.mobile.css" />
-        <link rel="stylesheet" href="css/jquery.mobile.structure.css" />
-        <link rel="stylesheet" href="css/ios/style.css" />
-        <link rel="stylesheet" href="css/app.css" />
-        <script src="js/phonegap.js">
-        </script>
-        <script src="js/jquery.js">
-        </script>
-        <script src="js/jquery.mobile.js">
-        </script>
-        <script src="js/underscore.js">
-        </script>
-        <script src="js/backbone.js">
-        </script>
-        <script src="js/backbone.localStorage.js">
-        </script>
-        <script src="js/iscroll.js">
-        </script>
-        <script src="js/app.js">
-        </script>
-    </head>
-    <body>
-        <div id="main" data-role="page">
-            <div id="header" data-role="header">
-                <a id="back" data-role="button" class="ui-btn-left hidden" data-icon='back'>Back</a>
-                <h1>NameMe!</h1>
-                <a id="add" data-role="button" class="ui-btn-right" data-icon='plus'>Add</a>
-                <a id="save" data-role="button" class="ui-btn-right hidden" data-icon='plus'>Save</a>
-            </div>
-            <div id="content" data-role="content">
-                <div id="content_recent" class="content scroller">
-                    <div class="content-area">
-                        <ul id="recentlist" data-role="listview" class="item-list">
-                        </ul>
-                    </div>
-                </div>
-                <div id="content_add" class="content scroller">
-                    <div class="content-area">
-                        <div data-role="fieldcontain">
-                            <label for="itemname" class="text">
-                                Name:
-                            </label>
-                            <input type="text" name="itemname" id="itemname" value="" />
-                        </div>
-                        <div data-role="fieldcontain">
-                            <label for="select-category" class="select">
-                                Category:
-                            </label>
-                            <select name="select-category" id="select-category" data-native-menu="false">
-                                <option value="Food and Beverage">Food and Beverage</option>
-                                <option value="Attraction">Attraction</option>
-                                <option value="Accommodation">Accommodation</option>
-                            </select>
-                        </div>
-                        <div data-role="fieldcontain">
-                            <label for="description" class="textarea">
-                                Description:
-                            </label>
-                            <textarea cols="40" rows="8" name="itemdescription" id="itemdescription">
+	<head>
+		<title>Assignment2App</title>
+		<meta name="viewport" content="user-scalable=no,initial-scale=1.0,maximum-scale=1.0" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+		<link rel="apple-touch-icon-precomposed" sizes="114x114" href="apple-touch-icon-114x114-precomposed.png">
+		<link rel="apple-touch-icon-precomposed" href="apple-touch-icon-precomposed.png">
+		<link rel="apple-touch-startup-image" href="splash-320x460.png" />
+		<link rel="stylesheet" href="css/jquery.mobile.css" />
+		<link rel="stylesheet" href="css/jquery.mobile.structure.css" />
+		<link rel="stylesheet" href="css/ios/style.css" />
+		<link rel="stylesheet" href="css/app.css" />
+		<script src="js/phonegap.js"></script>
+		<script src="js/jquery.js"></script>
+		<script src="js/jquery.mobile.js"></script>
+		<script src="js/underscore.js"></script>
+		<script src="js/backbone.js"></script>
+		<script src="js/iscroll.js"></script>
+		<script src="js/app.js"></script>
+	</head>
+	<body>
+		<div id="main" data-role="page">
+			<div id="header" data-role="header">
+				<a id="back" data-role="button" class="ui-btn-left hidden" data-icon='back'>Back</a>
+				<h1>Assignment2App</h1>
+				<a id="add" data-role="button" class="ui-btn-right" data-icon='plus'>Add</a>
+				<a id="save" data-role="button" class="ui-btn-right hidden" data-icon='plus'>Save</a>
+			</div>
+			<div id="content" data-role="content">
+				<!--
+				Recently added items listed in creation order
+				List template used to display the records - see templates below
+				-->
+				<div id="content_recent" class="content scroller">
+					<div class="content-area">
+						<ul id="recentlist" data-role="listview" class="item-list"></ul>
+					</div>
+				</div>
+				<!-- Add a new item	-->
+				<div id="content_add" class="content scroller">
+					<div class="content-area">
+						<form id="formadd">
+							<div data-role="fieldcontain">
+								<label for="itemname" class="text"> Name: </label>
+								<input type="text" name="itemname" id="itemname" value="" />
+							</div>
+							<div data-role="fieldcontain">
+								<label for="select-category" class="select"> Category: </label>
+								<select name="select-category" id="select-category" data-native-menu="false">
+									<option value="Food and Beverage">Food and Beverage</option>
+									<option value="Attraction">Attraction</option>
+									<option value="Accommodation">Accommodation</option>
+								</select>
+							</div>
+							<div data-role="fieldcontain">
+								<label for="description" class="textarea"> Description: </label>
+								<textarea cols="40" rows="8" name="itemdescription" id="itemdescription">
                             </textarea>
-                        </div>
-                        <div data-role="fieldcontain">
-                            <label for="select-rating" class="select">
-                                Rating:
-                            </label>
-                            <select name="select-rating" id="select-rating" data-native-menu="false">
-                                <option value="5">5 Stars</option>
-                                <option value="4">4 Stars</option>
-                                <option value="3">3 Stars</option>
-                                <option value="2">2 Stars</option>
-                                <option value="1">1 Star</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div id="content_top" class="content scroller">
-                    <div class="content-area">
-                        <ul id="toplist" data-role="listview" class="item-list">
-                            <!-- <li id="item_tm">
-                            <img src="img/photos/newdesktopImage.png" alt="" id="one" class="no_class" /><span class="text">{{-text}}</span>
-                            <span class="stars">3.5</span>
-                            <div id="delete_tm" class="delete">
-                            <a href="geo:-33.87034,151.2037">Visit us!</a>
-                            Rating
-                            </div>
-                            </li>-->
-                        </ul>
-                    </div>
-                </div>
-                <div id="content_status" class="content scroller">
-                    <div class="content-area">
-                    </div>
-                </div>
-                <div id="content_nearby" class="content scroller">
-                    <div class="content-area">
-                        <ul id="nearbylist" data-role="listview">
-                            <!-- <li id="item_tm">
-                            <img src="img/photos/newdesktopImage.png" alt="" id="one" class="no_class" /><span class="text">{{-text}}</span>
-                            <span class="stars">3.5</span>
-                            <div id="delete_tm" class="delete">
-                            <a href="geo:-33.87034,151.2037">Visit us!</a>
-                            Rating
-                            </div>
-                            </li>-->
-                        </ul>
-                    </div>
-                </div>
-                <div id="content_phonegap" class="content scroller">
-                    <div class="content-area">
-                    </div>
-                </div>
-            </div>
-            <div id="content_detail" class="content scroller">
-                <div class="content-area">
-                    <span id="item-detail-placeholder"></span>
-                </div>
-            </div>
-            <div id="footer" data-tap-toggle="false"  data-role="footer" class="ui-bar custom-tabbar" data-position="fixed" data-fullscreen="true">
-                <div data-role="navbar" class="ui-navbar">
-                    <ul id="tabbar" class="ui-grid custom-tabbar">
-                        <li>
-                            <a id="tab_recent" data-icon="custom">Recent</a>
-                        </li>
-                        <li>
-                            <a id="tab_top" data-icon="custom">Top</a>
-                        </li>
-                        <li>
-                            <a id="tab_nearby" data-icon="custom">Nearby</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <!-- Templates -->
-        <script type="text/template" id="item_tm">
-            <li class="li-template ui-li ui-li-static ui-body-c ui-li-has-thumb">
-                <img src="img/photos/newdesktopImage.png" alt="{{-text}}" class="no-class ui-li-thumb" /><h2 class="name">{{-text}}</h2>
-                <span class="stars">{{-rating}}</span>
-                <div id="delete_tm" class="delete">
-                    <h3 class="category">{{-category}}</h3>
-                </div>
-            </li>
-        </script>
-        <script type="text/template" id="item_detail">
-            <div class="item-detail-view">
-                <div class="item-detail-header">
-                    <h2 class="category">{{-category}}</h2>
-                    <h1>{{-text}}</h1>
-					
-                </div>
-				<div class="datecreated">
-					<p>
-                        Added: 5 May 2012 by <strong>Shay</strong>
-                    </p>
-                    <span class="stars">{{-rating}}</span>
+							</div>
+							<div data-role="fieldcontain">
+								<label for="select-rating" class="select"> Rating: </label>
+								<select name="select-rating" id="select-rating" data-native-menu="false">
+									<option value="1">1 Stars</option>
+									<option value="2">2 Stars</option>
+									<option value="3">3 Stars</option>
+									<option value="4">4 Stars</option>
+									<option value="5">5 Star</option>
+								</select>
+							</div>
+						</form>
+					</div>
 				</div>
-                <p>
-                    <img src="img/photos/newdesktopImage.png" alt="sample photo"/>
-                </p>
-				
-                <p class="description">
-                    {{-description}}
-                </p>
-				<div class="commentHeader">
-					Your Comment / Rating
+				<!--
+				top rated items listed in rating order
+				List template used to display the records - see templates below
+				-->
+				<div id="content_top" class="content scroller">
+					<div class="content-area">
+						<ul id="toplist" data-role="listview" class="item-list"></ul>
+					</div>
 				</div>
-                <p>
-                    <form>
-                    	<div data-role="fieldcontain">
-                            <label for="detail-select-rating" class="select">
-                                Rating:
-                            </label>
-                            <select name="detail-select-rating" id="detail-select-rating" data-native-menu="false">
-                                <option value="1">1 Stars</option>
-                                <option value="2">2 Stars</option>
-                                <option value="3">3 Stars</option>
-                                <option value="4">4 Stars</option>
-                                <option value="5">5 Star</option>
-                            </select>
-                        </div>
-						<div data-role="fieldcontain">
-                            <label for="description" class="textarea">
-                                Description:
-                            </label>
-                            <textarea cols="40" rows="8" name="itemdescription" id="itemdescription">
-                            </textarea>
-                        </div>
-                        <input type="submit" name="submitComment" id="submitComment" />
-                    </form>
-                </p>
-				<div class="commentHeader">
-					Latest Comments
+				<!--
+				Nearby items listed in proximity to current location
+				List template used to display the records - see templates below
+				-->
+				<div id="content_nearby" class="content scroller">
+					<div class="content-area">
+						<ul id="nearbylist" data-role="listview" class="item-list"></ul>
+					</div>
 				</div>
-                <ul>
-                    <li>
-                        <p>
-                            <label>
-                                John
-                            </label>
-                            <span class="stars">5</span>
-                        </p>
-                        <p>
-                            Nice staff and pleasant atmosphere, will do definately go again.
-                        </p>
-                    </li>
-                    <li>
-                        <p>
-                            <label>
-                                Mary
-                            </label>
-                            <span class="stars">2</span>
-                        </p>
-                        <p>
-                            Food was ok, place could do with a lick of paint.
-                        </p>
-                    </li>
-                    <li>
-                        <p>
-                            <label>
-                                Mary
-                            </label>
-                            <span class="stars">3</span>
-                        </p>
-                        <p>
-                            Really child friendly, kids loved the pizza and garlic bread
-                        </p>
-                    </li>
-                </ul>
-            </div>
-        </script>
-    </body>
+				<!--
+				Item detail page
+				uses a template below to display DOM elements
+				-->
+				<div id="content_detail" class="content scroller">
+					<div class="content-area">
+						<span id="item-detail-placeholder"></span>
+					</div>
+				</div>
+			</div>
+			<div id="footer" data-tap-toggle="false" data-role="footer" class="ui-bar custom-tabbar" data-position="fixed" data-fullscreen="true">
+				<div data-role="navbar" class="ui-navbar">
+					<ul id="tabbar" class="ui-grid custom-tabbar">
+						<li>
+							<a id="tab_recent" data-icon="custom">Recent</a>
+						</li>
+						<li>
+							<a id="tab_top" data-icon="custom">Top</a>
+						</li>
+						<li>
+							<a id="tab_nearby" data-icon="custom">Nearby</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<!-- Templates -->
+		<script type="text/template" id="item_tm">
+			<li class="li-template ui-li ui-li-static ui-body-c ui-li-has-thumb">
+			<img src="img/photos/missing.jpg" alt="{{-text}}" class="no-class ui-li-thumb" /><h2 class="name">{{-text}}</h2>
+			<span class="stars">{{-rating}}</span>
+			<div id="delete_tm" class="delete">
+			<h3 class="category">{{-category}}</h3>
+			</div>
+			</li>
+		</script>
+		<script type="text/template" id="item_detail">
+			<div class="item-detail-view">
+			<div class="item-detail-header">
+			<h2 class="category">{{-category}}</h2>
+			<h1>{{-text}}</h1>
+			</div>
+			<div class="datecreated">
+			<p>
+			Added: 5 May 2012 by <strong>Shay</strong>
+			</p>
+			<span class="stars">{{-rating}}</span>
+			</div>
+			<p>
+			<img src="img/photos/missing.jpg" alt="sample photo"/>
+			</p>
+			<p class="description">
+			{{-description}}
+			</p>
+			<div class="commentHeader">
+			Your Comment / Rating
+			</div>
+			<p>
+			<form>
+			<div data-role="fieldcontain">
+			<label for="detail-select-rating" class="select">
+			Rating:
+			</label>
+			<select name="detail-select-rating" id="detail-select-rating" data-native-menu="false">
+			<option value="1">1 Stars</option>
+			<option value="2">2 Stars</option>
+			<option value="3">3 Stars</option>
+			<option value="4">4 Stars</option>
+			<option value="5">5 Star</option>
+			</select>
+			</div>
+			<div data-role="fieldcontain">
+			<label for="description" class="textarea">
+			Description:
+			</label>
+			<textarea cols="40" rows="8" name="itemdescription" id="itemdescription">
+			</textarea>
+			</div>
+			<input type="submit" name="submitComment" id="submitComment" />
+			</form>
+			</p>
+			<div class="commentHeader">
+			Latest Comments
+			</div>
+			<ul>
+			</ul>
+			</div>
+		</script>
+	</body>
 </html>

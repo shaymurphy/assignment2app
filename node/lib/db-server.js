@@ -44,11 +44,11 @@ function init() {
     app.get('/api/echo', api.echo)
     app.post('/api/echo', api.echo)
 
-    app.post('/api/rest/todo',    api.rest.create)
-    app.get('/api/rest/todo/:id', api.rest.read)
-    app.get('/api/rest/todo',     api.rest.list)
-    app.put('/api/rest/todo/:id', api.rest.update)
-    app.del('/api/rest/todo/:id', api.rest.del)
+    app.post('/api/rest/item',    api.rest.create)
+    app.get('/api/rest/item/:id', api.rest.read)
+    app.get('/api/rest/item',     api.rest.list)
+    app.put('/api/rest/item/:id', api.rest.update)
+    app.del('/api/rest/item/:id', api.rest.del)
     app.get('/api/rest/geolist', api.rest.geolist)
   })
   server.use(router)
@@ -58,7 +58,7 @@ function init() {
 
   api.connect(
     {
-      name:   'lab04',
+      name:   'assignment2',
       server: '127.0.0.1',
       port:   27017,
     },
